@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 2.8)
+
+# Application source
+set(APPLICATION_SOURCE
+    simple.c
+)
+
+include_directories(
+  ${GLFW_INCLUDE_DIRS}
+)
+
+link_directories(
+  ${GLFW_LIBRARY_DIRS}
+)
+
+
+add_executable(base ${APPLICATION_SOURCE})
+
+target_link_libraries( base
+    glfw ${GLFW_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${CMAKE_THREADS_INIT}
+)
+
+# Put executable in build directory root
+set(EXECUTABLE_OUTPUT_PATH ..)
+
+# Install to project root
+install(TARGETS base DESTINATION ${base_SOURCE_DIR})
