@@ -30,12 +30,12 @@ else(PKGCONFIG_FOUND)
 endif()
 
 # Application source
-set(APPLICATION_SOURCE src/test.cpp)
+set(APPLICATION_SOURCE src/main.cpp)
 
 include_directories(
     include/glLoadGen 
     include/stb 
-    inlude/tinyobjloader-c 
+    include/tinyobjloader
     ${GLFW_INCLUDE_DIRS}
     )
 
