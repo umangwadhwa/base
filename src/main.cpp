@@ -15,33 +15,30 @@ static const struct
     float r, g, b;
 } vertices[] =
 {
-    { -0.25, -0.25,  0.25, 1.0, 0.0, 0.0 },
-    {  0.25, -0.25,  0.25, 0.0, 1.0, 0.0 },
-    {  0.25,  0.25,  0.25, 0.0, 0.0, 1.0 },
-    { -0.25,  0.25,  0.25, 1.0, 1.0, 1.0 },
-    { -0.25, -0.25, -0.25, 1.0, 0.0, 0.0 },
-    {  0.25, -0.25, -0.25, 0.0, 1.0, 0.0 },
-    {  0.25,  0.25, -0.25, 0.0, 0.0, 1.0 },
+    { -0.25, -0.25,  0.25, 0.0, 0.0, 0.0 },
+    {  0.25, -0.25,  0.25, 1.0, 0.0, 0.0 },
+    {  0.25,  0.25,  0.25, 1.0, 1.0, 0.0 },
+    { -0.25,  0.25,  0.25, 0.0, 1.0, 0.0 },
+    { -0.25, -0.25, -0.25, 0.0, 1.0, 1.0 },
+    {  0.25, -0.25, -0.25, 0.0, 0.0, 1.0 },
+    {  0.25,  0.25, -0.25, 1.0, 0.0, 1.0 },
     { -0.25,  0.25, -0.25, 1.0, 1.0, 1.0 },
 };
 
-static const struct 
+static const GLuint indices[] =
 {
-    float a, b, c;
-} indices[] =
-{
-    { 0, 1, 2 },
-    { 2, 3, 0 },
-    { 1, 5, 6 },
-    { 6, 2, 1 },
-    { 7, 6, 5 },
-    { 5, 4, 7 },
-    { 4, 0, 3 },
-    { 3, 7, 4 },   
-    { 4, 5, 1 },
-    { 1, 0, 4 },
-    { 3, 2, 6 },
-    { 6, 7, 3 },
+    0, 1, 2,
+    2, 3, 0,
+    1, 5, 6,
+    6, 2, 1,
+    7, 6, 5,
+    5, 4, 7,
+    4, 0, 3,
+    3, 7, 4,   
+    4, 5, 1,
+    1, 0, 4,
+    3, 2, 6,
+    6, 7, 3,
 };
 
 static const char* vertex_shader_text =
@@ -113,6 +110,7 @@ int main()
     glDebugMessageCallback(GlDebugCallback, NULL);
 
     glEnable(GL_DEPTH_TEST); 
+    //glDepthFunc(GL_GREATER);
 
     GLuint vertex_buffer, cube_elements, vertex_shader, fragment_shader, program;
     GLint mvp_location, vertex_position_location, vertex_color_location;
@@ -151,22 +149,24 @@ int main()
     {
         float ratio;
         int width, height;
-        glm::mat4 m, p, mvp;
+        glm::mat4 m, v, p, mvp;
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
 
         glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        //m = glm::rotate(m, (float) glfwGetTime(), glm::vec3(0, 1, 0));  
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        
+        m = glm::rotate(m, (float)glfwGetTime(), glm::vec3(0, 1, 0)); //model
+        v = glm::lookAt(glm::vec3(2,1,2), glm::vec3(0,0,0), glm::vec3(0,1,0)); //view
         //p = glm::ortho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        //mvp = glm::matrixCompMult(p, m);
+        p = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f); //projection
+        mvp = p * v * m;
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
         
-        glDrawElements(GL_TRIANGLES, 2, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);

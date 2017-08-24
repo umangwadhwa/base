@@ -52,7 +52,7 @@ target_link_libraries(
     )
 
 # Put executable in build directory root
-#set(EXECUTABLE_OUTPUT_PATH ..)
+#set(EXECUTABLE_OUTPUT_PATH)
 
 # Install to project root
 #install(TARGETS base DESTINATION ${base_SOURCE_DIR})
