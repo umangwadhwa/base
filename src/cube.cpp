@@ -9,6 +9,7 @@
 
 using namespace std;
 
+
 static const struct
 {
     float x, y, z;
@@ -41,6 +42,7 @@ static const GLuint indices[] =
     6, 7, 3,
 };
 
+
 static const char* vertex_shader_text =
 "uniform mat4 mvp;\n"
 "attribute vec3 vertex_color;\n"
@@ -59,6 +61,7 @@ static const char* fragment_shader_text =
 "    gl_FragColor = vec4(color, 1.0);\n"
 "}\n";
 
+
 void ErrorCallback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -74,6 +77,7 @@ void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
 {
     cout<<"Debug call: "<<msg<<endl;
 }
+
 
 int main() 
 {
@@ -104,8 +108,10 @@ int main()
         return -1;
     }
 
+    /*
     if(ogl_ext_KHR_debug)
         cout<<"KHR_debug supported"<<endl;
+    */
 
     glDebugMessageCallback(GlDebugCallback, NULL);
 

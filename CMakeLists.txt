@@ -30,7 +30,7 @@ else(PKGCONFIG_FOUND)
 endif()
 
 # Application source
-set(APPLICATION_SOURCE src/main.cpp)
+set(APPLICATION_SOURCE src/cube_textured.cpp)
 
 include_directories(
     include/glLoadGen 
