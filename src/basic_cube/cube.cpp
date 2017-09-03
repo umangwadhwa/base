@@ -4,13 +4,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
-#include <tinyobj_loader_c.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
 
-static const struct
+const struct
 {
     float x, y, z;
     float r, g, b;
@@ -26,7 +26,7 @@ static const struct
     { -0.25,  0.25, -0.25, 1.0, 1.0, 1.0 },
 };
 
-static const GLuint indices[] =
+const GLuint indices[] =
 {
     0, 1, 2,
     2, 3, 0,
@@ -42,27 +42,28 @@ static const GLuint indices[] =
     6, 7, 3,
 };
 
-
-static const char* vertex_shader_text =
-"uniform mat4 mvp;\n"
-"attribute vec3 vertex_color;\n"
-"attribute vec3 vertex_position;\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = mvp * vec4(vertex_position, 1.0);\n"
-"    color = vertex_color;\n"
-"}\n";
-
-static const char* fragment_shader_text =
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = vec4(color, 1.0);\n"
-"}\n";
+string vertex_shader_filepath = "../src/basic_cube/cube.vert";
+string fragment_shader_filepath = "../src/basic_cube/cube.frag";
 
 
-void ErrorCallback(int error, const char* description)
+string ReadShader(string filename)
+{
+    ifstream file(filename);
+
+    if(file.is_open())
+    {
+        string contents((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+        file.close();
+        return contents;
+    }
+    else 
+    {
+        cout<<"Unable to open shader file "<<filename<<endl;
+        return "";
+    }
+}
+
+void ErrorCallback(int error, const char * description)
 {
     fprintf(stderr, "Error: %s\n", description);
 }
@@ -86,8 +87,9 @@ int main()
     if(!glfwInit())
         return -1;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
     GLFWwindow* window = glfwCreateWindow(640, 480, "mission", NULL, NULL);
@@ -97,29 +99,41 @@ int main()
         return -1;
     }
     
+    glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, KeyCallback);
 
-    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         glfwDestroyWindow(window);
+        glfwTerminate();
         return -1;
     }
 
-    /*
     if(ogl_ext_KHR_debug)
-        cout<<"KHR_debug supported"<<endl;
-    */
-
-    glDebugMessageCallback(GlDebugCallback, NULL);
+        glDebugMessageCallback(GlDebugCallback, NULL);
 
     glEnable(GL_DEPTH_TEST); 
-    //glDepthFunc(GL_GREATER);
+    glDepthFunc(GL_LESS);
 
-    GLuint vertex_buffer, cube_elements, vertex_shader, fragment_shader, program;
+    GLuint vao, vertex_buffer, cube_elements, vertex_shader, fragment_shader, program;
     GLint mvp_location, vertex_position_location, vertex_color_location;
+
+    string vertex_shader_string = ReadShader(vertex_shader_filepath);
+    string fragment_shader_string = ReadShader(fragment_shader_filepath);
+    const char * vertex_shader_text = vertex_shader_string.c_str();
+    const char * fragment_shader_text = fragment_shader_string.c_str();
+
+    if(vertex_shader_text == "" || fragment_shader_text == "")
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -127,7 +141,7 @@ int main()
 
     glGenBuffers(1, &cube_elements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_elements);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);    
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
@@ -142,14 +156,17 @@ int main()
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
 
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+
     mvp_location = glGetUniformLocation(program, "mvp");
     vertex_position_location = glGetAttribLocation(program, "vertex_position");
     vertex_color_location = glGetAttribLocation(program, "vertex_color");
 
     glEnableVertexAttribArray(vertex_position_location);
-    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void *)0);
+    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)0);
     glEnableVertexAttribArray(vertex_color_location);
-    glVertexAttribPointer(vertex_color_location, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void *)(sizeof(float)*3));
+    glVertexAttribPointer(vertex_color_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)(sizeof(float)*3));
 
     while(!glfwWindowShouldClose(window))
     {
@@ -158,33 +175,35 @@ int main()
         glm::mat4 m, v, p, mvp;
 
         glfwGetFramebufferSize(window, &width, &height);
-        ratio = width / (float) height;
+        ratio = width / (float)height;
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         
         m = glm::rotate(m, (float)glfwGetTime(), glm::vec3(0, 1, 0)); //model
-        v = glm::lookAt(glm::vec3(2,1,2), glm::vec3(0,0,0), glm::vec3(0,1,0)); //view
-        //p = glm::ortho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        p = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f); //projection
+        v = glm::lookAt(glm::vec3(2, 1, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); //view
+        p = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f); //projection
         mvp = p * v * m;
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
         
         glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    /*
-    cout<<"Compiled against GLFW "<<GLFW_VERSION_MAJOR<<"."<<GLFW_VERSION_MINOR<<"."<<GLFW_VERSION_REVISION<<endl;
-    int major, minor, revision;
-    glfwGetVersion(&major, &minor, &revision);
-    cout<<"Running against GLFW "<<major<<"."<<minor<<"."<<revision<<endl;
-    */
+    
+    //cout<<"Compiled against GLFW "<<GLFW_VERSION_MAJOR<<"."<<GLFW_VERSION_MINOR<<"."<<GLFW_VERSION_REVISION<<endl;
+    //int major, minor, revision;
+    //glfwGetVersion(&major, &minor, &revision);
+    //cout<<"Running against GLFW "<<major<<"."<<minor<<"."<<revision<<endl;
+
+    glDeleteProgram(program);
+    glDeleteBuffers(1, &cube_elements);
+    glDeleteBuffers(1, &vertex_buffer);
+    glDeleteVertexArrays(1, &vao);
 
     glfwDestroyWindow(window);
     glfwTerminate();

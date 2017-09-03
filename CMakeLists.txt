@@ -4,7 +4,7 @@ project(base)
 
 set(GCC_CXX_FLAGS "-std=gnu++11 -m64")
 
-# X11 Dependencies
+#X11 Dependencies
 set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXi")
 set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXxf86vm")
 set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXinerama")
@@ -20,7 +20,7 @@ set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXau")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_CXX_FLAGS}")
 
-# Required packages
+#Required packages
 find_package(OpenGL REQUIRED)
 find_package(PkgConfig)
 if(PKGCONFIG_FOUND)
@@ -29,8 +29,8 @@ else(PKGCONFIG_FOUND)
     find_package(GLFW)
 endif()
 
-# Application source
-set(APPLICATION_SOURCE src/cube_textured.cpp)
+#Application source
+#set(APPLICATION_SOURCE src/textured_cube/textured_cube.cpp)
 
 include_directories(
     include/glLoadGen 
@@ -43,20 +43,9 @@ link_directories(
     ${GLFW_LIBRARY_DIRS}
     )
 
-add_executable(base ${APPLICATION_SOURCE})
+#add_executable(base ${APPLICATION_SOURCE})
+add_executable(basic_cube src/basic_cube/cube.cpp)
+add_executable(textured_cube src/textured_cube/textured_cube.cpp)
 
-target_link_libraries(
-    base 
-    ${GLFW_STATIC_LIBRARIES} 
-    ${OPENGL_LIBRARIES} 
-    )
-
-# Put executable in build directory root
-#set(EXECUTABLE_OUTPUT_PATH)
-
-# Install to project root
-#install(TARGETS base DESTINATION ${base_SOURCE_DIR})
-
-# Install settings
-#set(CMAKE_INSTALL_PREFIX "${base_SOURCE_DIR}/")
-
+target_link_libraries(basic_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(textured_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
