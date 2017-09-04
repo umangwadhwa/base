@@ -1,7 +1,10 @@
+#version 330
+#extension GL_ARB_separate_shader_objects : require
+
 uniform mat4 mvp;
-attribute vec3 vertex_position;
-attribute vec2 vertex_uv;
-varying vec2 uv;
+layout (location = 0) in vec3 vertex_position;
+layout (location = 1) in vec2 vertex_uv;
+layout (location = 0) out vec2 uv;
 
 void main()
 {

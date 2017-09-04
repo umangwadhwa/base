@@ -5,9 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 using namespace std;
 
@@ -95,8 +96,28 @@ void ErrorCallback(int error, const char* description)
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+    //screenshot
+    if(key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+
+        GLubyte * data = new GLubyte[width*height*4];
+        glReadBuffer(GL_FRONT);
+        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+        //flip vertically (better way to do this?)
+        GLubyte * flipped_data = new GLubyte[width*height*4];
+        for(int i = 0; i < height; i++)
+            memcpy(&flipped_data[width*i*4], &data[width*(height-i-1)*4], width*4*sizeof(GLubyte));
+        
+        int screenshot = stbi_write_png("../src/textured_cube/screenshot.png", 640, 480, 4, (void *)flipped_data, 0);
+        if(screenshot == 0)
+            cout<<"Screenshot failed\n";
+    }
 }
 
 void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * msg, const void * data)
@@ -154,7 +175,7 @@ int main()
 
 
     GLuint vao, vertex_buffer, vertex_shader, fragment_shader, program;
-    GLint mvp_location, texture_location, vertex_texture_position_location, vertex_texture_uv_location;
+    GLint mvp_location, texture_location;
 
     string vertex_shader_string = ReadShader(vertex_shader_filepath);
     string fragment_shader_string = ReadShader(fragment_shader_filepath);
@@ -203,14 +224,12 @@ int main()
     glDeleteShader(fragment_shader);
 
     mvp_location = glGetUniformLocation(program, "mvp");
-    vertex_texture_position_location = glGetAttribLocation(program, "vertex_position");
-    vertex_texture_uv_location = glGetAttribLocation(program, "vertex_uv");
     texture_location = glGetUniformLocation(program, "texture_sample");
 
-    glEnableVertexAttribArray(vertex_texture_position_location);
-    glVertexAttribPointer(vertex_texture_position_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)0);
-    glEnableVertexAttribArray(vertex_texture_uv_location);
-    glVertexAttribPointer(vertex_texture_uv_location, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)(sizeof(float)*3));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)(sizeof(float)*3));
 
     while(!glfwWindowShouldClose(window))
     {
