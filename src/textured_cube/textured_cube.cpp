@@ -70,6 +70,8 @@ static const struct
 
 string vertex_shader_filepath = "../src/textured_cube/textured_cube.vert";
 string fragment_shader_filepath = "../src/textured_cube/textured_cube.frag";
+string screenshot_file = "../src/textured_cube/screenshot.png";
+string texture_file = "../src/textured_cube/wall.jpg";
 
 
 string ReadShader(string filename)
@@ -114,7 +116,7 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
         for(int i = 0; i < height; i++)
             memcpy(&flipped_data[width*i*4], &data[width*(height-i-1)*4], width*4*sizeof(GLubyte));
         
-        int screenshot = stbi_write_png("../src/textured_cube/screenshot.png", 640, 480, 4, (void *)flipped_data, 0);
+        int screenshot = stbi_write_png(screenshot_file.c_str(), 640, 480, 4, (void *)flipped_data, 0);
         if(screenshot == 0)
             cout<<"Screenshot failed\n";
     }
@@ -163,7 +165,7 @@ int main()
     glEnable(GL_DEPTH_TEST); 
 
     int tex_width, tex_height, tex_channels;
-    unsigned char * data = stbi_load("../src/textured_cube/wall.jpg", &tex_width, &tex_height, &tex_channels, 4);
+    unsigned char * data = stbi_load(texture_file.c_str(), &tex_width, &tex_height, &tex_channels, 4);
 
     if(data == NULL)
     {
@@ -174,7 +176,7 @@ int main()
     }
 
 
-    GLuint vao, vertex_buffer, vertex_shader, fragment_shader, program;
+    GLuint vertex_array, vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, texture_location;
 
     string vertex_shader_string = ReadShader(vertex_shader_filepath);
@@ -200,8 +202,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
 
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -242,6 +244,8 @@ int main()
         glViewport(0, 0, width, height);
 
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         
         m = glm::rotate(m, (float)glfwGetTime(), glm::vec3(0, 1, 0)); //model
         v = glm::lookAt(glm::vec3(2, 1, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); //view
@@ -267,7 +271,7 @@ int main()
 
     glDeleteProgram(program);
     glDeleteBuffers(1, &vertex_buffer);
-    glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &vertex_array);
     glDeleteTextures(1, &tex);
 
     glfwDestroyWindow(window);

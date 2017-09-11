@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 #include <iostream>
@@ -11,42 +13,9 @@
 using namespace std;
 
 
-const struct
-{
-    float x, y, z;
-    float r, g, b;
-} vertices[] =
-{
-    { -0.25, -0.25,  0.25, 0.0, 0.0, 0.0 },
-    {  0.25, -0.25,  0.25, 1.0, 0.0, 0.0 },
-    {  0.25,  0.25,  0.25, 1.0, 1.0, 0.0 },
-    { -0.25,  0.25,  0.25, 0.0, 1.0, 0.0 },
-    { -0.25, -0.25, -0.25, 0.0, 1.0, 1.0 },
-    {  0.25, -0.25, -0.25, 0.0, 0.0, 1.0 },
-    {  0.25,  0.25, -0.25, 1.0, 0.0, 1.0 },
-    { -0.25,  0.25, -0.25, 1.0, 1.0, 1.0 },
-};
-
-const GLuint indices[] =
-{
-    0, 1, 2,
-    2, 3, 0,
-    1, 5, 6,
-    6, 2, 1,
-    7, 6, 5,
-    5, 4, 7,
-    4, 0, 3,
-    3, 7, 4,   
-    4, 5, 1,
-    1, 0, 4,
-    3, 2, 6,
-    6, 7, 3,
-};
-
-string vertex_shader_filepath = "../src/basic_cube/cube.vert";
-string fragment_shader_filepath = "../src/basic_cube/cube.frag";
-string screenshot_file = "../src/basic_cube/screenshot.png";
-
+string vertex_shader_filepath = "../src/obj_loading/obj_loading.vert";
+string fragment_shader_filepath = "../src/obj_loading/obj_loading.frag";
+string screenshot_file = "../src/obj_loading/screenshot.png";
 
 string ReadShader(string filename)
 {
@@ -65,7 +34,77 @@ string ReadShader(string filename)
     }
 }
 
-void ErrorCallback(int error, const char * description)
+bool LoadTinyObj(string obj_filepath, vector<float> * vertices, vector<uint32_t> * indices)
+{
+    tinyobj::attrib_t attrib;
+    vector<tinyobj::shape_t> shapes;
+    vector<tinyobj::material_t> materials;
+    string error;
+
+    bool obj_load = tinyobj::LoadObj(&attrib, &shapes, &materials, &error, obj_filepath.c_str());
+
+    if(!obj_load)
+    {
+        cout<<error<<endl;
+        return false;
+    }
+
+    uint32_t index_value = 0;
+
+    for(const auto& shape : shapes) 
+    {
+        for(const auto& index : shape.mesh.indices) 
+        {
+            indices->push_back(index_value++);
+
+            int vertex_idx = index.vertex_index;
+            if(vertex_idx >= 0 && attrib.vertices.size() > (3 * vertex_idx + 2))
+            {   
+                vertices->push_back(attrib.vertices[3 * vertex_idx + 0]);
+                vertices->push_back(attrib.vertices[3 * vertex_idx + 1]);
+                vertices->push_back(attrib.vertices[3 * vertex_idx + 2]);
+            }
+            else
+            {
+                vertices->push_back(0.0f);
+                vertices->push_back(0.0f);
+                vertices->push_back(0.0f);
+            }
+
+            int texcoord_idx = index.texcoord_index;
+            if(texcoord_idx >= 0 && attrib.texcoords.size() > (2 * texcoord_idx + 2))
+            {   
+                vertices->push_back(attrib.texcoords[2 * texcoord_idx + 0]);
+                vertices->push_back(attrib.texcoords[2 * texcoord_idx + 1]);
+            }
+            else
+            {
+                vertices->push_back(0.0f);
+                vertices->push_back(0.0f);
+            }
+
+            int normal_idx = index.normal_index;
+            if(normal_idx >= 0 && attrib.normals.size() > (3 * normal_idx + 2))
+            {   
+                vertices->push_back(attrib.normals[3 * normal_idx + 0]);
+                vertices->push_back(attrib.normals[3 * normal_idx + 1]);
+                vertices->push_back(attrib.normals[3 * normal_idx + 2]);
+            }
+            else
+            {
+                vertices->push_back(0.0f);
+                vertices->push_back(0.0f);
+                vertices->push_back(0.0f);
+            }
+        
+        }
+    }
+
+    
+    return true;
+}
+
+void ErrorCallback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
 }
@@ -101,9 +140,14 @@ void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
     cout<<"Debug call: "<<msg<<endl;
 }
 
-
-int main() 
+int main(int argc, char ** argv) 
 {
+    if(argc != 2)
+    {
+        cout<<"Incorrect arguments\n";
+        return -1;
+    }
+
     glfwSetErrorCallback(ErrorCallback);
 
     if(!glfwInit())
@@ -121,9 +165,9 @@ int main()
         return -1;
     }
     
-    glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, KeyCallback);
 
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
@@ -136,41 +180,52 @@ int main()
     if(ogl_ext_KHR_debug)
         glDebugMessageCallback(GlDebugCallback, NULL);
 
-    glEnable(GL_DEPTH_TEST); 
-    glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
 
-    GLuint vao, vertex_buffer, cube_elements, vertex_shader, fragment_shader, program;
-    GLint mvp_location;
+    vector<float> vertices;
+    vector<uint32_t> indices;
 
-    string vertex_shader_string = ReadShader(vertex_shader_filepath);
-    string fragment_shader_string = ReadShader(fragment_shader_filepath);
-    const char * vertex_shader_text = vertex_shader_string.c_str();
-    const char * fragment_shader_text = fragment_shader_string.c_str();
+    bool load_obj = LoadTinyObj(argv[1], &vertices, &indices);
 
-    if(vertex_shader_text == "" || fragment_shader_text == "")
+    if(!load_obj)
     {
         glfwDestroyWindow(window);
         glfwTerminate();
         return -1;
     }
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    GLuint vertex_array, vertex_buffer, index_buffer, vertex_shader, fragment_shader, program;
+    GLint mvp_location;
+
+    string vertex_shader_string = ReadShader(vertex_shader_filepath);
+    string fragment_shader_string = ReadShader(fragment_shader_filepath);
+    const char * vertex_texture_shader_text = vertex_shader_string.c_str();
+    const char * fragment_texture_shader_text = fragment_shader_string.c_str();
+
+    if(vertex_texture_shader_text == "" || fragment_texture_shader_text == "")
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
 
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices.at(0), GL_STATIC_DRAW);
 
-    glGenBuffers(1, &cube_elements);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_elements);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);    
+    glGenBuffers(1, &index_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices.at(0), GL_STATIC_DRAW);   
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
+    glShaderSource(vertex_shader, 1, &vertex_texture_shader_text, NULL);
     glCompileShader(vertex_shader);
 
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
+    glShaderSource(fragment_shader, 1, &fragment_texture_shader_text, NULL);
     glCompileShader(fragment_shader);
 
     program = glCreateProgram();
@@ -183,10 +238,14 @@ int main()
 
     mvp_location = glGetUniformLocation(program, "mvp");
 
+    int stride = sizeof(float) * vertices.size() / indices.size();
+
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)(sizeof(float)*3));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void *)(sizeof(float)*3));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void *)(sizeof(float)*5));
 
     while(!glfwWindowShouldClose(window))
     {
@@ -196,8 +255,8 @@ int main()
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float)height;
-
         glViewport(0, 0, width, height);
+
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -210,22 +269,16 @@ int main()
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
         
-        glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    
-    //cout<<"Compiled against GLFW "<<GLFW_VERSION_MAJOR<<"."<<GLFW_VERSION_MINOR<<"."<<GLFW_VERSION_REVISION<<endl;
-    //int major, minor, revision;
-    //glfwGetVersion(&major, &minor, &revision);
-    //cout<<"Running against GLFW "<<major<<"."<<minor<<"."<<revision<<endl;
-
     glDeleteProgram(program);
-    glDeleteBuffers(1, &cube_elements);
     glDeleteBuffers(1, &vertex_buffer);
-    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &index_buffer);
+    glDeleteVertexArrays(1, &vertex_array);
 
     glfwDestroyWindow(window);
     glfwTerminate();

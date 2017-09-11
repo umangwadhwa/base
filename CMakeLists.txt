@@ -46,6 +46,8 @@ link_directories(
 #add_executable(base ${APPLICATION_SOURCE})
 add_executable(basic_cube src/basic_cube/cube.cpp)
 add_executable(textured_cube src/textured_cube/textured_cube.cpp)
+add_executable(obj_loading src/obj_loading/obj_loading.cpp)
 
 target_link_libraries(basic_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(textured_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(obj_loading ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
