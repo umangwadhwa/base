@@ -39,15 +39,15 @@ include_directories(
     ${GLFW_INCLUDE_DIRS}
     )
 
-link_directories(
-    ${GLFW_LIBRARY_DIRS}
-    )
+link_directories(${GLFW_LIBRARY_DIRS})
 
 #add_executable(base ${APPLICATION_SOURCE})
 add_executable(basic_cube src/basic_cube/cube.cpp)
 add_executable(textured_cube src/textured_cube/textured_cube.cpp)
 add_executable(obj_loading src/obj_loading/obj_loading.cpp)
+add_executable(camera_controls src/camera_controls/camera_controls.cpp)
 
 target_link_libraries(basic_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(textured_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(obj_loading ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(camera_controls ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
