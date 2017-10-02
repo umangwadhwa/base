@@ -12,44 +12,57 @@
 
 using namespace std;
 
-
-const struct
+struct Vertices
 {
     float x, y, z;
     float u, v;
-} vertices[] =
+};
+
+Vertices cube_small_vertices[] =
 {
-    { -4.5, -4.5, -3.5, 0.0, 0.0 },
-    { -3.5, -4.5, -3.5, 1.0, 0.0 },
-    { -3.5, -3.5, -3.5, 1.0, 1.0 },
-    { -4.5, -3.5, -3.5, 0.0, 1.0 },
+    { -0.25, -0.25,  0.25, 0.0, 0.0 },
+    {  0.25, -0.25,  0.25, 1.0, 0.0 },
+    {  0.25,  0.25,  0.25, 1.0, 1.0 },
+    { -0.25,  0.25,  0.25, 0.0, 1.0 },
 
-    { -4.5, -3.5, -3.5, 0.0, 0.0 },
-    { -3.5, -3.5, -3.5, 1.0, 0.0 },
-    { -3.5, -3.5, -4.5, 1.0, 1.0 },
-    { -4.5, -3.5, -4.5, 0.0, 1.0 },
+    { -0.25,  0.25,  0.25, 0.0, 0.0 },
+    {  0.25,  0.25,  0.25, 1.0, 0.0 },
+    {  0.25,  0.25, -0.25, 1.0, 1.0 },
+    { -0.25,  0.25, -0.25, 0.0, 1.0 },
 
-    { -3.5, -4.5, -4.5, 0.0, 0.0 },
-    { -4.5, -4.5, -4.5, 1.0, 0.0 },
-    { -4.5, -3.5, -4.5, 1.0, 1.0 },
-    { -3.5, -3.5, -4.5, 0.0, 1.0 },
+    {  0.25, -0.25, -0.25, 0.0, 0.0 },
+    { -0.25, -0.25, -0.25, 1.0, 0.0 },
+    { -0.25,  0.25, -0.25, 1.0, 1.0 },
+    {  0.25,  0.25, -0.25, 0.0, 1.0 },
 
-    { -4.5, -4.5, -4.5, 0.0, 0.0 },
-    { -3.5, -4.5, -4.5, 1.0, 0.0 },
-    { -3.5, -4.5, -3.5, 1.0, 1.0 },
-    { -4.5, -4.5, -3.5, 0.0, 1.0 },
+    { -0.25, -0.25, -0.25, 0.0, 0.0 },
+    {  0.25, -0.25, -0.25, 1.0, 0.0 },
+    {  0.25, -0.25,  0.25, 1.0, 1.0 },
+    { -0.25, -0.25,  0.25, 0.0, 1.0 },
 
-    { -4.5, -4.5, -4.5, 0.0, 0.0 },
-    { -4.5, -4.5, -3.5, 1.0, 0.0 },
-    { -4.5, -3.5, -3.5, 1.0, 1.0 },
-    { -4.5, -3.5, -4.5, 0.0, 1.0 },
+    { -0.25, -0.25, -0.25, 0.0, 0.0 },
+    { -0.25, -0.25,  0.25, 1.0, 0.0 },
+    { -0.25,  0.25,  0.25, 1.0, 1.0 },
+    { -0.25,  0.25, -0.25, 0.0, 1.0 },
 
-    { -3.5, -4.5, -3.5, 0.0, 0.0 },
-    { -3.5, -4.5, -4.5, 1.0, 0.0 },
-    { -3.5, -3.5, -4.5, 1.0, 1.0 },
-    { -3.5, -3.5, -3.5, 0.0, 1.0 },
+    {  0.25, -0.25,  0.25, 0.0, 0.0 },
+    {  0.25, -0.25, -0.25, 1.0, 0.0 },
+    {  0.25,  0.25, -0.25, 1.0, 1.0 },
+    {  0.25,  0.25,  0.25, 0.0, 1.0 },
+};
 
+const uint32_t cube_small_indices[] =
+{
+     0,  1,  2,  2,  3,  0,
+     4,  5,  6,  6,  7,  4,
+     8,  9, 10, 10, 11,  8,
+    12, 13, 14, 14, 15, 12,
+    16, 17, 18, 18, 19, 16,
+    20, 21, 22, 22, 23, 20,
+};
 
+Vertices cube_medium_vertices[] =
+{
     { -0.5, -0.5,  0.5, 0.0, 0.0 },
     {  0.5, -0.5,  0.5, 1.0, 0.0 },
     {  0.5,  0.5,  0.5, 1.0, 1.0 },
@@ -79,62 +92,60 @@ const struct
     {  0.5, -0.5, -0.5, 1.0, 0.0 },
     {  0.5,  0.5, -0.5, 1.0, 1.0 },
     {  0.5,  0.5,  0.5, 0.0, 1.0 },
-
-
-    {  3.5,  3.5,  4.5, 0.0, 0.0 },
-    {  4.5,  3.5,  4.5, 1.0, 0.0 },
-    {  4.5,  4.5,  4.5, 1.0, 1.0 },
-    {  3.5,  4.5,  4.5, 0.0, 1.0 },
-
-    {  3.5,  4.5,  4.5, 0.0, 0.0 },
-    {  4.5,  4.5,  4.5, 1.0, 0.0 },
-    {  4.5,  4.5,  3.5, 1.0, 1.0 },
-    {  3.5,  4.5,  3.5, 0.0, 1.0 },
-
-    {  4.5,  3.5,  3.5, 0.0, 0.0 },
-    {  3.5,  3.5,  3.5, 1.0, 0.0 },
-    {  3.5,  4.5,  3.5, 1.0, 1.0 },
-    {  4.5,  4.5,  3.5, 0.0, 1.0 },
-
-    {  3.5,  3.5,  3.5, 0.0, 0.0 },
-    {  4.5,  3.5,  3.5, 1.0, 0.0 },
-    {  4.5,  3.5,  4.5, 1.0, 1.0 },
-    {  3.5,  3.5,  4.5, 0.0, 1.0 },
-
-    {  3.5,  3.5,  3.5, 0.0, 0.0 },
-    {  3.5,  3.5,  4.5, 1.0, 0.0 },
-    {  3.5,  4.5,  4.5, 1.0, 1.0 },
-    {  3.5,  4.5,  3.5, 0.0, 1.0 },
-
-    {  4.5,  3.5,  4.5, 0.0, 0.0 },
-    {  4.5,  3.5,  3.5, 1.0, 0.0 },
-    {  4.5,  4.5,  3.5, 1.0, 1.0 },
-    {  4.5,  4.5,  4.5, 0.0, 1.0 },
 };
 
-const uint32_t indices[] =
+const uint32_t cube_medium_indices[] =
 {
-     0,  1,  2,
-     2,  3,  0,
-
-     4,  5,  6,
-     6,  7,  4,
-
-     8,  9, 10,
-    10, 11,  8,
-
-    12, 13, 14,
-    14, 15, 12,
-
-    16, 17, 18,
-    18, 19, 16,
-
-    20, 21, 22,
-    22, 23, 20,
+     0,  1,  2,  2,  3,  0,
+     4,  5,  6,  6,  7,  4,
+     8,  9, 10, 10, 11,  8,
+    12, 13, 14, 14, 15, 12,
+    16, 17, 18, 18, 19, 16,
+    20, 21, 22, 22, 23, 20,
 };
 
-int num_cubes = 3;
-int num_vertices_per_cube = 24;
+Vertices cube_large_vertices[] =
+{
+    { -0.75, -0.75,  0.75, 0.0, 0.0 },
+    {  0.75, -0.75,  0.75, 1.0, 0.0 },
+    {  0.75,  0.75,  0.75, 1.0, 1.0 },
+    { -0.75,  0.75,  0.75, 0.0, 1.0 },
+
+    { -0.75,  0.75,  0.75, 0.0, 0.0 },
+    {  0.75,  0.75,  0.75, 1.0, 0.0 },
+    {  0.75,  0.75, -0.75, 1.0, 1.0 },
+    { -0.75,  0.75, -0.75, 0.0, 1.0 },
+
+    {  0.75, -0.75, -0.75, 0.0, 0.0 },
+    { -0.75, -0.75, -0.75, 1.0, 0.0 },
+    { -0.75,  0.75, -0.75, 1.0, 1.0 },
+    {  0.75,  0.75, -0.75, 0.0, 1.0 },
+
+    { -0.75, -0.75, -0.75, 0.0, 0.0 },
+    {  0.75, -0.75, -0.75, 1.0, 0.0 },
+    {  0.75, -0.75,  0.75, 1.0, 1.0 },
+    { -0.75, -0.75,  0.75, 0.0, 1.0 },
+
+    { -0.75, -0.75, -0.75, 0.0, 0.0 },
+    { -0.75, -0.75,  0.75, 1.0, 0.0 },
+    { -0.75,  0.75,  0.75, 1.0, 1.0 },
+    { -0.75,  0.75, -0.75, 0.0, 1.0 },
+
+    {  0.75, -0.75,  0.75, 0.0, 0.0 },
+    {  0.75, -0.75, -0.75, 1.0, 0.0 },
+    {  0.75,  0.75, -0.75, 1.0, 1.0 },
+    {  0.75,  0.75,  0.75, 0.0, 1.0 },
+};
+
+const uint32_t cube_large_indices[] =
+{
+     0,  1,  2,  2,  3,  0,
+     4,  5,  6,  6,  7,  4,
+     8,  9, 10, 10, 11,  8,
+    12, 13, 14, 14, 15, 12,
+    16, 17, 18, 18, 19, 16,
+    20, 21, 22, 22, 23, 20,
+};
 
 glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -154,9 +165,9 @@ string fragment_shader_filepath = "../src/camera_controls/textured_cube.frag";
 string screenshot_file = "../src/camera_controls/screenshot.png";
 string texture_filepath[] = 
 {
+    "../src/camera_controls/wood.jpg",
     "../src/camera_controls/bricks.jpg",
     "../src/camera_controls/crate.jpg",
-    "../src/camera_controls/wood.jpg",
 };
 
 string ReadShader(string filename)
@@ -194,6 +205,28 @@ void LoadProgram(GLuint &program, const char * vertex_shader_text, const char * 
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
+}
+
+void LoadVertexArray(GLuint &vertex_array, GLuint &vertex_buffer, GLuint &index_buffer, 
+    Vertices * vertices, size_t vertices_size, const uint32_t * indices, size_t indices_size)
+{
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
+
+    glGenBuffers(1, &index_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size, indices, GL_STATIC_DRAW);  
+
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void *)(sizeof(float)*3));
+    
+    glBindVertexArray(0);
 }
 
 bool LoadTexture(GLuint &texture, string filename)
@@ -343,10 +376,6 @@ int main(int argc, char ** argv)
 
     glEnable(GL_DEPTH_TEST);
 
-    GLuint vertex_array, vertex_buffer, index_buffer, program;
-    GLuint texture[3];
-    GLint mvp_location;
-
     string vertex_shader_string = ReadShader(vertex_shader_filepath);
     string fragment_shader_string = ReadShader(fragment_shader_filepath);
     const char * vertex_texture_shader_text = vertex_shader_string.c_str();
@@ -359,10 +388,16 @@ int main(int argc, char ** argv)
         return -1;
     }
 
+    GLuint program;
+    GLint mvp_location;
+
     LoadProgram(program, vertex_texture_shader_text, fragment_texture_shader_text);
+    glUseProgram(program);
     mvp_location = glGetUniformLocation(program, "mvp");
 
-    for(int i = 0; i < num_cubes; i++)
+    GLuint vertex_array[3], vertex_buffer[3], index_buffer[3], texture[3];
+
+    for(int i = 0; i < 3; i++)
         if(!LoadTexture(texture[i], texture_filepath[i]))
         {
             glfwDestroyWindow(window);
@@ -370,19 +405,12 @@ int main(int argc, char ** argv)
             return -1;
         }
 
-    glGenVertexArrays(1, &vertex_array);
-    glBindVertexArray(vertex_array);
-
-    glGenBuffers(1, &index_buffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);  
-
-    glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    LoadVertexArray(vertex_array[0], vertex_buffer[0], index_buffer[0], 
+        cube_small_vertices, sizeof(cube_small_vertices), cube_small_indices, sizeof(cube_small_indices));
+    LoadVertexArray(vertex_array[1], vertex_buffer[1], index_buffer[1], 
+        cube_medium_vertices, sizeof(cube_medium_vertices), cube_medium_indices, sizeof(cube_medium_indices));
+    LoadVertexArray(vertex_array[2], vertex_buffer[2], index_buffer[2], 
+        cube_large_vertices, sizeof(cube_large_vertices), cube_large_indices, sizeof(cube_large_indices));
 
     while(!glfwWindowShouldClose(window))
     {
@@ -404,34 +432,56 @@ int main(int argc, char ** argv)
 
         view = glm::lookAt(camera_position, camera_position + camera_front, camera_up);
         projection = glm::perspective(glm::radians(fov), (float)width/(float)height, 0.1f, 100.0f);
-        mvp = projection * view * model;
-
-        glUseProgram(program);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
-
-        for(int i = 0; i < num_cubes; i++)
+        
+        //small cube
+        glBindVertexArray(vertex_array[0]);
+        glBindTexture(GL_TEXTURE_2D, texture[0]);
+        model = translate(glm::mat4(1.0), glm::vec3(-4.5, 0.0, 0.0));
+        for(int i = 0; i < 5; i++)
         {
-            int vertex_pointer = num_vertices_per_cube * i * sizeof(vertices[0]);
-            int uv_pointer = vertex_pointer + sizeof(float)*3;
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)vertex_pointer);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)uv_pointer);
-
-            glBindTexture(GL_TEXTURE_2D, texture[i]);
-            glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
+            model = glm::translate(model, glm::vec3(1.5, 0.0, 0.0));
+            mvp = projection * view * model;
+            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
+            glDrawElements(GL_TRIANGLES, sizeof(cube_small_indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
+        }
+        
+        //medium cube
+        glBindVertexArray(vertex_array[1]);
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
+        model = translate(glm::mat4(1.0), glm::vec3(-7.5, 2.5, 0.0));
+        for(int i = 0; i < 5; i++)
+        {
+            model = glm::translate(model, glm::vec3(2.5, 0.0, 0.0));
+            mvp = projection * view * model;
+            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
+            glDrawElements(GL_TRIANGLES, sizeof(cube_medium_indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
         }
 
+        //large cube
+        glBindVertexArray(vertex_array[2]);
+        glBindTexture(GL_TEXTURE_2D, texture[2]);
+        model = translate(glm::mat4(1.0), glm::vec3(-10.5, 5.0, 0.0));
+        for(int i = 0; i < 5; i++)
+        {
+            model = glm::translate(model, glm::vec3(3.5, 0.0, 0.0));
+            mvp = projection * view * model;
+            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
+            glDrawElements(GL_TRIANGLES, sizeof(cube_large_indices)/sizeof(GLuint), GL_UNSIGNED_INT, NULL);
+        }
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    for(int i = 0; i < num_cubes; i++)
+    for(int i = 0; i < 3; i++)
+    {
         glDeleteTextures(1, &texture[i]);
+        glDeleteVertexArrays(1, &vertex_array[0]);
+        glDeleteBuffers(1, &vertex_buffer[0]);
+        glDeleteBuffers(1, &index_buffer[0]);
+    }
 
     glDeleteProgram(program);
-    glDeleteBuffers(1, &vertex_buffer);
-    glDeleteBuffers(1, &index_buffer);
-    glDeleteVertexArrays(1, &vertex_array);
 
     glfwDestroyWindow(window);
     glfwTerminate();

@@ -25,6 +25,7 @@ find_package(OpenGL REQUIRED)
 find_package(PkgConfig)
 if(PKGCONFIG_FOUND)
     pkg_search_module(GLFW glfw3)
+    pkg_search_module(GLM glm)
 else(PKGCONFIG_FOUND)
     find_package(GLFW)
 endif()
@@ -37,6 +38,7 @@ include_directories(
     include/stb 
     include/tinyobjloader
     ${GLFW_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIRS}
     )
 
 link_directories(${GLFW_LIBRARY_DIRS})
