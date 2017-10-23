@@ -1,5 +1,4 @@
-#version 330
-#extension GL_ARB_separate_shader_objects : require
+#version 420
 
 uniform mat4 mvp;
 layout (location = 0) in vec3 vertex;

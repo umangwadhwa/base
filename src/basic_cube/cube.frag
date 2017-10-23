@@ -1,9 +1,9 @@
-#version 330
-#extension GL_ARB_separate_shader_objects : require
+#version 420
 
 layout (location = 0) in vec3 color;
+out vec4 fragColor;
 
 void main()
 {
-    gl_FragColor = vec4(color, 1.0);
+    fragColor = vec4(color, 1.0);
 }

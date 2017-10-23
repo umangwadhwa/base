@@ -1,10 +1,10 @@
-#version 330
-#extension GL_ARB_separate_shader_objects : require
+#version 420
 
-layout (location = 0) in vec2 uv;
 uniform sampler2D texture_sample;
+layout (location = 0) in vec2 uv;
+out vec4 fragColor;
 
 void main()
 {
-    gl_FragColor = texture2D(texture_sample, uv);
+    fragColor = texture2D(texture_sample, uv);
 }
