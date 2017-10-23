@@ -1,55 +1,52 @@
-cmake_minimum_required(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-project(base)
+PROJECT(base)
 
-set(GCC_CXX_FLAGS "-std=gnu++11 -m64")
+OPTION(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+OPTION(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+OPTION(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+OPTION(GLFW_INSTALL "Generate installation target" OFF)
 
-#X11 Dependencies
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXi")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXxf86vm")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXinerama")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXcursor")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXfixes")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXrandr")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXext")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXrender")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lX11")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lpthread")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lxcb")
-set(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXau")
+ADD_SUBDIRECTORY(deps/glfw)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_CXX_FLAGS}")
+IF(UNIX)
+  SET(GCC_CXX_FLAGS "-std=gnu++11 -m64")
+
+  #X11 Dependencies
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXi")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXxf86vm")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXinerama")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXcursor")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXfixes")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXrandr")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXext")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXrender")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lX11")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lpthread")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lxcb")
+  SET(GCC_CXX_FLAGS "${GCC_CXX_FLAGS} -lXau")
+
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_CXX_FLAGS}")
+ENDIF()
 
 #Required packages
-find_package(OpenGL REQUIRED)
-find_package(PkgConfig)
-if(PKGCONFIG_FOUND)
-    pkg_search_module(GLFW glfw3)
-    pkg_search_module(GLM glm)
-else(PKGCONFIG_FOUND)
-    find_package(GLFW)
-endif()
+FIND_PACKAGE(OpenGL REQUIRED)
 
-#Application source
-#set(APPLICATION_SOURCE src/textured_cube/textured_cube.cpp)
-
-include_directories(
-    include/glLoadGen 
-    include/stb 
-    include/tinyobjloader
-    ${GLFW_INCLUDE_DIRS}
-    ${GLM_INCLUDE_DIRS}
-    )
+INCLUDE_DIRECTORIES(
+  deps/
+  deps/glm
+  include/
+  ${GLFW_INCLUDE_DIRS}
+ )
 
 link_directories(${GLFW_LIBRARY_DIRS})
 
-#add_executable(base ${APPLICATION_SOURCE})
-add_executable(basic_cube src/basic_cube/cube.cpp)
-add_executable(textured_cube src/textured_cube/textured_cube.cpp)
-add_executable(obj_loading src/obj_loading/obj_loading.cpp)
-add_executable(camera_controls src/camera_controls/camera_controls.cpp)
+ADD_EXECUTABLE(basic_cube src/basic_cube/cube.cpp)
+ADD_EXECUTABLE(textured_cube src/textured_cube/textured_cube.cpp)
+ADD_EXECUTABLE(obj_loading src/obj_loading/obj_loading.cpp)
+ADD_EXECUTABLE(camera_controls src/camera_controls/camera_controls.cpp)
 
-target_link_libraries(basic_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
-target_link_libraries(textured_cube ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
-target_link_libraries(obj_loading ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
-target_link_libraries(camera_controls ${GLFW_STATIC_LIBRARIES} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(basic_cube glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(textured_cube glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(obj_loading glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(camera_controls glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
