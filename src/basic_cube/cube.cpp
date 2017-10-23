@@ -1,10 +1,10 @@
-#include <gl_core_3_2.h>
-#include "gl_core_3_2.c"
+#include <gl_core_4_2.h>
+#include "gl_core_4_2.c"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
+#include <stb/stb_image_write.h>
 #include <iostream>
 #include <fstream>
 
@@ -110,7 +110,7 @@ int main()
         return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
@@ -215,12 +215,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    
-    //cout<<"Compiled against GLFW "<<GLFW_VERSION_MAJOR<<"."<<GLFW_VERSION_MINOR<<"."<<GLFW_VERSION_REVISION<<endl;
-    //int major, minor, revision;
-    //glfwGetVersion(&major, &minor, &revision);
-    //cout<<"Running against GLFW "<<major<<"."<<minor<<"."<<revision<<endl;
 
     glDeleteProgram(program);
     glDeleteBuffers(1, &cube_elements);
