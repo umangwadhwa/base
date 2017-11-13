@@ -32,21 +32,24 @@ ENDIF()
 #Required packages
 FIND_PACKAGE(OpenGL REQUIRED)
 
+SET(SOURCES 
+  src/camera.cpp
+  src/mesh.cpp
+  src/shader.cpp
+  )
+
 INCLUDE_DIRECTORIES(
   deps/
   deps/glm
   include/
+  src/
   ${GLFW_INCLUDE_DIRS}
  )
 
 link_directories(${GLFW_LIBRARY_DIRS})
 
-ADD_EXECUTABLE(basic_cube src/basic_cube/cube.cpp)
-ADD_EXECUTABLE(textured_cube src/textured_cube/textured_cube.cpp)
-ADD_EXECUTABLE(obj_loading src/obj_loading/obj_loading.cpp)
-ADD_EXECUTABLE(camera_controls src/camera_controls/camera_controls.cpp)
+ADD_EXECUTABLE(obj_loading working/obj_loading/obj_loading.cpp ${SOURCES})
+ADD_EXECUTABLE(camera_controls working/camera_controls/camera_controls.cpp ${SOURCES})
 
-TARGET_LINK_LIBRARIES(basic_cube glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
-TARGET_LINK_LIBRARIES(textured_cube glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
 TARGET_LINK_LIBRARIES(obj_loading glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
 TARGET_LINK_LIBRARIES(camera_controls glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})

@@ -1,3 +1,3 @@
 # Cubes!
 
-![cubes](src/camera_controls/screenshot.png)
+![cubes](working/camera_controls/screenshot.png)
